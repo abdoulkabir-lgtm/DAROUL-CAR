@@ -29,5 +29,5 @@ npm run dev                 # http://localhost:3000 et http://localhost:3000/adm
    - `NEXT_PUBLIC_SITE_URL=https://votre-domaine`
    - `NEXT_PUBLIC_WHATSAPP=2250778483076`
    - `ADMIN_EMAIL`, `ADMIN_PASSWORD` (pour le premier `npm run seed`)
-4. Build : `npm run build` ; démarrage : `npm start`. Lancer une fois `npm run seed` depuis le shell Railway.
+4. Build : `npm run build` ; démarrage : `npm run start:prod` (applique les migrations, importe les données de départ si la base est vide, puis lance le site).
 5. Relier le nom de domaine dans l’onglet *Settings → Domains*.
