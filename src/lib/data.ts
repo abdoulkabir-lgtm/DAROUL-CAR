@@ -115,8 +115,8 @@ export async function getSite(): Promise<SiteData> {
     video: toItem(s.videoAccueil),
     whatsapp: s.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP || '2250778483076',
     telephone: s.telephoneAffiche || '+225 07 78 48 30 76',
-    facebook: s.facebook,
-    tiktok: s.tiktok,
+    facebook: s.facebook || 'https://www.facebook.com/Daroulcar',
+    tiktok: s.tiktok || 'https://www.tiktok.com/@daroulcar',
     atouts: (s.atouts || []).map((a) => ({ titre: a.titre, texte: a.texte })),
   }
 }

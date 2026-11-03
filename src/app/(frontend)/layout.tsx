@@ -30,8 +30,8 @@ export default async function FrontLayout({ children }: { children: React.ReactN
         <footer>
           <div className="logo"><img src="/logo.png" alt="DAROUL CAR" style={{ height: 90 }} /></div>
           <div>
-            {site.facebook ? <a href={site.facebook}>Facebook</a> : 'Facebook'} ·{' '}
-            {site.tiktok ? <a href={site.tiktok}>TikTok</a> : 'TikTok'} · WhatsApp {site.telephone}
+            {site.facebook ? <a href={site.facebook} target="_blank" rel="noopener">Facebook</a> : 'Facebook'} ·{' '}
+            {site.tiktok ? <a href={site.tiktok} target="_blank" rel="noopener">TikTok</a> : 'TikTok'} · WhatsApp {site.telephone}
           </div>
           <div>© {new Date().getFullYear()} DAROUL CAR</div>
         </footer>

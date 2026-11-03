@@ -30,8 +30,8 @@ export const Site: GlobalConfig = {
           fields: [
             { name: 'whatsapp', type: 'text', label: 'Numéro WhatsApp (format international sans +)', defaultValue: '2250778483076' },
             { name: 'telephoneAffiche', type: 'text', label: 'Numéro affiché', defaultValue: '+225 07 78 48 30 76' },
-            { name: 'facebook', type: 'text', label: 'Lien Facebook' },
-            { name: 'tiktok', type: 'text', label: 'Lien TikTok' },
+            { name: 'facebook', type: 'text', label: 'Lien Facebook', defaultValue: 'https://www.facebook.com/Daroulcar' },
+            { name: 'tiktok', type: 'text', label: 'Lien TikTok', defaultValue: 'https://www.tiktok.com/@daroulcar' },
           ],
         },
         {
