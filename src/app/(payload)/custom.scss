@@ -1,0 +1,8 @@
+:root { --theme-success-500: #d4a74a; }
+
+/* Couleurs DAROUL CAR dans le tableau de bord */
+:root[data-theme='dark'] {
+  --theme-success-500: #d4a74a;
+}
+.btn--style-primary { background: #d4a74a !important; color: #0a0a0c !important; }
+.btn--style-primary:hover { background: #f0cf7a !important; }
