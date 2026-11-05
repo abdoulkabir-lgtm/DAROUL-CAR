@@ -64,7 +64,7 @@ export const FICHES: Record<string, Fiche> = {
   'changan-uni-k-gris': {
     annee: 2026,
     prix: 27_000_000,
-    prixTTC: false,
+    prixTTC: true,
     caracteristiques: [
       { libelle: 'Transmission', valeur: '4x4' },
       { libelle: 'Équipement', valeur: 'Full options' },
@@ -73,7 +73,7 @@ export const FICHES: Record<string, Fiche> = {
   'jetour-t2-noir': {
     annee: 2025,
     prix: 25_000_000,
-    prixTTC: false,
+    prixTTC: true,
     caracteristiques: [{ libelle: 'Transmission', valeur: '4x2' }],
   },
 }
