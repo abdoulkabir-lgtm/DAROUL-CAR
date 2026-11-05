@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { VehicleGallery } from '@/components/VehicleGallery'
 import { WaIcon } from '@/components/WaIcon'
-import { getSite, getVehicle } from '@/lib/data'
+import { carLabel, carWaText, getSite, getVehicle } from '@/lib/data'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -21,17 +21,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function VehiclePage({ params }: Props) {
   const [car, site] = await Promise.all([getVehicle((await params).slug), getSite()])
   if (!car) notFound()
-  const label = `${car.marque} ${car.modele}${car.couleur ? ` (${car.couleur})` : ''}`
-  const wa = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(`Bonjour DAROUL CAR, je suis intéressé(e) par le ${label}. Est-il disponible ?`)}`
+  const label = carLabel(car)
+  const wa = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(carWaText(car))}`
   return (
     <main className="vpage">
-      <Link href="/#collection" className="back">← Toute la collection</Link>
+      <Link href={car.dispo === 'arrivage' ? '/#arrivages' : '/#collection'} className="back">
+        ← {car.dispo === 'arrivage' ? 'Tous les arrivages' : 'Toute la collection'}
+      </Link>
       <div className="vhead">
         <VehicleGallery car={car} whatsapp={site.whatsapp} />
         <div className="vinfo">
           <div className="kicker" style={{ opacity: 1, animation: 'none' }}>{car.marque}</div>
           <h1>{car.modele}</h1>
-          <div className="price">{car.prixLabel}</div>
+          {car.dispo === 'vendu' && <div className="sold-banner">Vendue</div>}
+          {car.dispo === 'arrivage' && <div className="arr-banner">Futur arrivage{car.arrivee ? ` · ${car.arrivee}` : ''} · précommande ouverte</div>}
+          {car.dispo !== 'vendu' && <div className="price">{car.prixLabel}</div>}
           <dl>
             <div><dt>État</dt><dd>Neuf · 0 km</dd></div>
             <div><dt>Catégorie</dt><dd>{car.categorieLabel}</dd></div>
@@ -43,7 +47,13 @@ export default async function VehiclePage({ params }: Props) {
           </dl>
           {car.description && <p className="desc">{car.description}</p>}
           <div className="actions">
-            <Link className="btn solid" href={`/?vehicule=${car.slug}#demande`}>Demande d’achat</Link>
+            {car.dispo === 'vendu' ? (
+              <Link className="btn solid" href="/#collection">Voir les véhicules disponibles</Link>
+            ) : (
+              <Link className="btn solid" href={`/?vehicule=${car.slug}#demande`}>
+                {car.dispo === 'arrivage' ? 'Précommander' : 'Demande d’achat'}
+              </Link>
+            )}
             <a className="btn wa" href={wa} target="_blank" rel="noopener"><WaIcon /> WhatsApp</a>
           </div>
         </div>

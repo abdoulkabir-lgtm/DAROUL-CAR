@@ -3,7 +3,21 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { VehicleCard } from '@/lib/data'
 import { Lightbox } from './Lightbox'
 
-export function Collection({ vehicles, whatsapp }: { vehicles: VehicleCard[]; whatsapp: string }) {
+export function Collection({
+  vehicles,
+  whatsapp,
+  id = 'collection',
+  title = 'La collection',
+  intro,
+  empty = 'Les véhicules arrivent bientôt.',
+}: {
+  vehicles: VehicleCard[]
+  whatsapp: string
+  id?: string
+  title?: string
+  intro?: React.ReactNode
+  empty?: React.ReactNode
+}) {
   const cats = useMemo(() => ['Tous', ...Array.from(new Set(vehicles.map((v) => v.categorieLabel)))], [vehicles])
   const [filter, setFilter] = useState('Tous')
   const [open, setOpen] = useState<VehicleCard | null>(null)
@@ -23,24 +37,28 @@ export function Collection({ vehicles, whatsapp }: { vehicles: VehicleCard[]; wh
   }, [filter, vehicles])
 
   return (
-    <section id="collection">
+    <section id={id}>
       <div className="head">
-        <h2>La collection</h2>
-        <div className="filters">
+        <h2>{title}</h2>
+        {cats.length > 2 && <div className="filters">
           {cats.map((c) => (
             <button key={c} className={c === filter ? 'on' : ''} onClick={() => setFilter(c)}>
               {c}
             </button>
           ))}
-        </div>
+        </div>}
       </div>
-      {shown.length === 0 && <p className="empty">Les véhicules arrivent bientôt.</p>}
+      {intro && <p className="sec-intro">{intro}</p>}
+      {shown.length === 0 && <div className="empty">{empty}</div>}
       <div className="grid" ref={grid}>
         {shown.map((v) => (
-          <article className="card" key={v.id} onClick={() => setOpen(v)}>
+          <article className={`card ${v.dispo}`} key={v.id} onClick={() => setOpen(v)}>
             <div className="pic">
               <div className="bg" style={{ background: `url(${v.cover}) center/cover` }} />
-              <span className="tag">{v.categorieLabel} · Neuf</span>
+              <span className="tag">
+                {v.dispo === 'arrivage' ? `Arrivage${v.arrivee ? ` · ${v.arrivee}` : ''}` : `${v.categorieLabel} · Neuf`}
+              </span>
+              {v.dispo === 'vendu' && <span className="sold">Vendue</span>}
             </div>
             <div className="info">
               <div>
@@ -48,7 +66,7 @@ export function Collection({ vehicles, whatsapp }: { vehicles: VehicleCard[]; wh
                 <h3>{v.modele}</h3>
               </div>
               <div className="price">
-                {v.prixLabel}
+                {v.dispo === 'vendu' ? 'Vendue' : v.prixLabel}
                 <br />
                 <small>{v.couleur}</small>
               </div>

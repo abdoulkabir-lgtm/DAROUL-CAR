@@ -7,6 +7,7 @@
 import path from 'path'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { FICHES } from './data/fiches'
 
 const DIR = path.resolve(process.cwd(), 'seed-media')
 
@@ -57,15 +58,23 @@ for (const v of VEHICULES) {
   const alt = `${v.marque} ${v.modele} ${v.couleur}`
   const ids: number[] = []
   for (const f of v.files) ids.push(await upload(f, alt))
+  const slug = `${v.marque} ${v.modele} ${v.couleur}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+  const f = FICHES[slug]
   await payload.create({
     collection: 'vehicles',
     data: {
+      slug,
       marque: v.marque,
-      modele: v.modele,
+      modele: f?.modele || v.modele,
+      ...(f ? { prix: f.prix, prixTTC: f.prixTTC, caracteristiques: f.caracteristiques, ...(f.annee ? { annee: f.annee } : {}) } : {}),
       categorie: v.categorie as 'suv',
       couleur: v.couleur,
       description: v.description,
       enLigne: true,
+      disponibilite: 'stock',
       ordre,
       couverture: ids[0],
       galerie: ids,

@@ -5,7 +5,7 @@ export const Leads: CollectionConfig = {
   labels: { singular: 'Demande d’achat', plural: 'Demandes d’achat' },
   admin: {
     useAsTitle: 'nom',
-    defaultColumns: ['createdAt', 'nom', 'telephone', 'vehiculeLibelle', 'statut'],
+    defaultColumns: ['createdAt', 'nom', 'telephone', 'vehiculeLibelle', 'type', 'statut'],
     group: 'Clients',
   },
   access: {
@@ -59,6 +59,17 @@ export const Leads: CollectionConfig = {
         { name: 'email', type: 'email', label: 'E-mail' },
         { name: 'ville', type: 'text', label: 'Ville' },
       ],
+    },
+    {
+      name: 'type',
+      type: 'select',
+      label: 'Type de demande',
+      defaultValue: 'achat',
+      options: [
+        { label: 'Achat', value: 'achat' },
+        { label: 'Précommande (arrivage)', value: 'precommande' },
+      ],
+      admin: { position: 'sidebar' },
     },
     { name: 'vehicule', type: 'relationship', relationTo: 'vehicles', label: 'Véhicule' },
     { name: 'vehiculeLibelle', type: 'text', label: 'Véhicule demandé' },

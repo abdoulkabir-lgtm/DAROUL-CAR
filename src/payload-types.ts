@@ -143,6 +143,7 @@ export interface Vehicle {
    * Laisser vide pour afficher « Sur demande ».
    */
   prix?: number | null;
+  prixTTC?: boolean | null;
   enLigne?: boolean | null;
   ordre?: number | null;
   description?: string | null;
@@ -158,6 +159,14 @@ export interface Vehicle {
    * Glissez-déposez plusieurs fichiers ; l’ordre est celui de la galerie.
    */
   galerie?: (number | Media)[] | null;
+  /**
+   * « VENDUE » garde le véhicule visible avec un bandeau Vendue. « Futur arrivage » le place dans l’onglet Arrivages.
+   */
+  disponibilite: 'stock' | 'arrivage' | 'vendu';
+  /**
+   * Ex. : « Décembre 2026 » ou « Sous 6 semaines ».
+   */
+  arrivee?: string | null;
   /**
    * Générée automatiquement.
    */
@@ -214,6 +223,7 @@ export interface Lead {
   telephone: string;
   email?: string | null;
   ville?: string | null;
+  type?: ('achat' | 'precommande') | null;
   vehicule?: (number | null) | Vehicle;
   vehiculeLibelle?: string | null;
   paiement?: string | null;
@@ -344,6 +354,7 @@ export interface VehiclesSelect<T extends boolean = true> {
   couleur?: T;
   annee?: T;
   prix?: T;
+  prixTTC?: T;
   enLigne?: T;
   ordre?: T;
   description?: T;
@@ -356,6 +367,8 @@ export interface VehiclesSelect<T extends boolean = true> {
       };
   couverture?: T;
   galerie?: T;
+  disponibilite?: T;
+  arrivee?: T;
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -370,6 +383,7 @@ export interface LeadsSelect<T extends boolean = true> {
   telephone?: T;
   email?: T;
   ville?: T;
+  type?: T;
   vehicule?: T;
   vehiculeLibelle?: T;
   paiement?: T;

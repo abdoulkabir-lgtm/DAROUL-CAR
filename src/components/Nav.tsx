@@ -18,6 +18,7 @@ export function Nav() {
       <div className="links">
         <Link href="/#accueil">Showroom</Link>
         <Link href="/#collection">Collection</Link>
+        <Link href="/#arrivages" className="keep">Arrivages</Link>
         <Link href="/#demande" className="keep">Demande d’achat</Link>
       </div>
     </nav>

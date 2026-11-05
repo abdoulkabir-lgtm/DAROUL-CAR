@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import type { VehicleCard } from '@/lib/data'
+import { carWaText } from '@/lib/format'
 import { WaIcon } from './WaIcon'
 
 export function Lightbox({
@@ -38,9 +39,7 @@ export function Lightbox({
   }, [i, go, car.media])
 
   const label = `${car.marque} ${car.modele}${car.couleur ? ` (${car.couleur})` : ''}`
-  const wa = `https://wa.me/${whatsapp}?text=${encodeURIComponent(
-    `Bonjour DAROUL CAR, je suis intéressé(e) par le ${label}. Est-il disponible ?`,
-  )}`
+  const wa = `https://wa.me/${whatsapp}?text=${encodeURIComponent(carWaText(car))}`
 
   return (
     <div className="lb open" role="dialog" aria-modal="true" aria-label={label}>
@@ -69,12 +68,17 @@ export function Lightbox({
             <span>État<b>Neuf · 0 km</b></span>
             {car.couleur && <span>Couleur<b>{car.couleur}</b></span>}
             <span>Catégorie<b>{car.categorieLabel}</b></span>
-            <span>Prix<b>{car.prixLabel}</b></span>
+            <span>Prix<b>{car.dispo === 'vendu' ? 'Vendue' : car.prixLabel}</b></span>
+            {car.dispo === 'arrivage' && <span>Arrivée<b>{car.arrivee || 'Bientôt'}</b></span>}
           </div>
         </div>
         <div className="cta">
           <Link className="btn" href={`/vehicules/${car.slug}`}>Voir la fiche</Link>
-          <Link className="btn solid" href={`/?vehicule=${car.slug}#demande`} onClick={onClose}>Demande d’achat</Link>
+          {car.dispo !== 'vendu' && (
+            <Link className="btn solid" href={`/?vehicule=${car.slug}#demande`} onClick={onClose}>
+              {car.dispo === 'arrivage' ? 'Précommander' : 'Demande d’achat'}
+            </Link>
+          )}
           <a className="btn wa" href={wa} target="_blank" rel="noopener"><WaIcon /> WhatsApp</a>
         </div>
       </div>

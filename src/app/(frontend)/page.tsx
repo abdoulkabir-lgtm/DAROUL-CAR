@@ -41,7 +41,21 @@ export default async function Home() {
         </div>
       )}
 
-      <Collection vehicles={vehicles} whatsapp={site.whatsapp} />
+      <Collection vehicles={vehicles.filter((v) => v.dispo !== 'arrivage')} whatsapp={site.whatsapp} />
+
+      <Collection
+        id="arrivages"
+        title="Futurs arrivages"
+        vehicles={vehicles.filter((v) => v.dispo === 'arrivage')}
+        whatsapp={site.whatsapp}
+        intro="Réservez dès maintenant les véhicules en cours d’acheminement : précommandez et soyez servi en priorité à leur arrivée."
+        empty={
+          <>
+            <p>Les prochains arrivages seront annoncés ici très bientôt.</p>
+            <a className="btn solid" href="/?vehicule=arrivage-autre#demande">Précommander un modèle</a>
+          </>
+        }
+      />
 
       {site.atouts.length > 0 && (
         <section>
@@ -78,7 +92,7 @@ export default async function Home() {
             </p>
           </div>
           <BuyForm
-            vehicles={vehicles.map(({ id, slug, marque, modele, couleur }) => ({ id, slug, marque, modele, couleur }))}
+            vehicles={vehicles.map(({ id, slug, marque, modele, couleur, dispo, arrivee }) => ({ id, slug, marque, modele, couleur, dispo, arrivee }))}
             whatsapp={site.whatsapp}
           />
         </div>

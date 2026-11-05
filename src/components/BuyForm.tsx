@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import type { VehicleCard } from '@/lib/data'
 import { WaIcon } from './WaIcon'
 
-type Opt = Pick<VehicleCard, 'id' | 'slug' | 'marque' | 'modele' | 'couleur'>
+type Opt = Pick<VehicleCard, 'id' | 'slug' | 'marque' | 'modele' | 'couleur' | 'dispo' | 'arrivee'>
 const lab = (v: Opt) => `${v.marque} ${v.modele}${v.couleur ? ` (${v.couleur})` : ''}`
 
 export function BuyForm({ vehicles, whatsapp }: { vehicles: Opt[]; whatsapp: string }) {
@@ -15,7 +15,7 @@ export function BuyForm({ vehicles, whatsapp }: { vehicles: Opt[]; whatsapp: str
   useEffect(() => {
     const pick = () => {
       const s = new URLSearchParams(window.location.search).get('vehicule')
-      if (s && vehicles.some((v) => v.slug === s)) setVeh(s)
+      if (s && (s === 'arrivage-autre' || vehicles.some((v) => v.slug === s && v.dispo !== 'vendu'))) setVeh(s)
     }
     pick()
     window.addEventListener('popstate', pick)
@@ -30,7 +30,12 @@ export function BuyForm({ vehicles, whatsapp }: { vehicles: Opt[]; whatsapp: str
     if (!nom || !tel || !veh) return setErr('Merci de remplir les champs marqués d’une étoile.')
     setErr('')
     const v = vehicles.find((x) => x.slug === veh)
-    const vehiculeLibelle = v ? lab(v) : 'Autre modèle (voir message)'
+    const pre = v?.dispo === 'arrivage' || veh === 'arrivage-autre'
+    const vehiculeLibelle = v
+      ? `${lab(v)}${pre ? ' – futur arrivage' : ''}`
+      : veh === 'arrivage-autre'
+        ? 'Prochain arrivage (modèle à préciser)'
+        : 'Autre modèle (voir message)'
     if (String(f.get('site') || '')) return
     const extras = f.getAll('extra').map(String)
     const data = {
@@ -38,6 +43,7 @@ export function BuyForm({ vehicles, whatsapp }: { vehicles: Opt[]; whatsapp: str
       telephone: tel,
       email: String(f.get('email') || '') || undefined,
       ville: String(f.get('ville') || '') || undefined,
+      type: pre ? 'precommande' : 'achat',
       vehicule: v?.id,
       vehiculeLibelle,
       paiement: String(f.get('paiement')),
@@ -53,7 +59,7 @@ export function BuyForm({ vehicles, whatsapp }: { vehicles: Opt[]; whatsapp: str
     }
     setSending(false)
     const text = [
-      'Bonjour DAROUL CAR, je souhaite faire une demande d’achat.',
+      pre ? 'Bonjour DAROUL CAR, je souhaite faire une précommande (futur arrivage).' : 'Bonjour DAROUL CAR, je souhaite faire une demande d’achat.',
       '',
       `Véhicule : ${vehiculeLibelle}`,
       `Nom : ${nom}`,
@@ -89,9 +95,17 @@ export function BuyForm({ vehicles, whatsapp }: { vehicles: Opt[]; whatsapp: str
         Véhicule souhaité *
         <select value={veh} onChange={(e) => setVeh(e.target.value)} required>
           <option value="">Choisir un véhicule</option>
-          {vehicles.map((v) => (
-            <option key={v.slug} value={v.slug}>{lab(v)}</option>
-          ))}
+          <optgroup label="En stock">
+            {vehicles.filter((v) => v.dispo === 'stock').map((v) => (
+              <option key={v.slug} value={v.slug}>{lab(v)}</option>
+            ))}
+          </optgroup>
+          <optgroup label="Futurs arrivages (précommande)">
+            {vehicles.filter((v) => v.dispo === 'arrivage').map((v) => (
+              <option key={v.slug} value={v.slug}>{lab(v)}{v.arrivee ? ` – ${v.arrivee}` : ''}</option>
+            ))}
+            <option value="arrivage-autre">Précommander un modèle à venir (préciser dans le message)</option>
+          </optgroup>
           <option value="autre">Autre modèle (préciser dans le message)</option>
         </select>
       </label>
@@ -122,11 +136,11 @@ export function BuyForm({ vehicles, whatsapp }: { vehicles: Opt[]; whatsapp: str
       <label className="full">Message<textarea name="msg" rows={3} placeholder="Couleur, options, questions…" /></label>
       {err && <div className="full err" style={{ display: 'block' }}>{err}</div>}
       <div className="full">
-        <button className="btn solid" type="submit" disabled={sending}>{sending ? 'Envoi…' : 'Préparer ma demande'}</button>
+        <button className="btn solid" type="submit" disabled={sending}>{sending ? 'Envoi…' : veh === 'arrivage-autre' || vehicles.find((x) => x.slug === veh)?.dispo === 'arrivage' ? 'Préparer ma précommande' : 'Préparer ma demande'}</button>
       </div>
       {done && (
         <div className="done" id="buyDone" style={{ display: 'block' }}>
-          <h3>Votre demande est prête</h3>
+          <h3>Votre {done.text.includes('précommande') ? 'précommande' : 'demande'} est prête</h3>
           <pre>{done.text}</pre>
           <a className="btn wa" href={done.link} target="_blank" rel="noopener">
             <WaIcon /> Envoyer sur WhatsApp

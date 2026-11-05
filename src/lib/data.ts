@@ -12,6 +12,8 @@ export type VehicleCard = {
   categorie: string
   categorieLabel: string
   prixLabel: string
+  dispo: 'stock' | 'arrivage' | 'vendu'
+  arrivee?: string | null
   description: string
   annee?: number | null
   caracteristiques: { libelle: string; valeur: string }[]
@@ -31,7 +33,16 @@ export const payloadClient = () => getPayload({ config })
 
 const asMedia = (m: unknown): Media | null => (m && typeof m === 'object' ? (m as Media) : null)
 
+// Adresses relatives : les médias s'affichent quel que soit le domaine (Railway ou daroulcar.com).
+const rel = <T extends string | null | undefined>(u: T): T => (u ? (u.replace(/^https?:\/\/[^/]+/, '') as T) : u)
+
 export function toItem(m: unknown): MediaItem | null {
+  const r = toItemAbs(m)
+  if (!r) return r
+  return { ...r, url: rel(r.url), poster: rel(r.poster), thumb: rel(r.thumb) }
+}
+
+function toItemAbs(m: unknown): MediaItem | null {
   const d = asMedia(m)
   if (!d?.url) return null
   if (d.mimeType?.startsWith('video')) {
@@ -41,8 +52,8 @@ export function toItem(m: unknown): MediaItem | null {
   return { url: d.sizes?.hd?.url || d.url, type: 'image', thumb: d.sizes?.card?.url || d.url, alt: d.alt || undefined }
 }
 
-export const prixLabel = (p?: number | null) =>
-  p ? `${new Intl.NumberFormat('fr-FR').format(p)} FCFA` : 'Sur demande'
+export const prixLabel = (p?: number | null, ttc?: boolean | null) =>
+  p ? `${new Intl.NumberFormat('fr-FR').format(p).replace(/\u202f|\u00a0/g, '.')} FCFA${ttc ? ' TTC' : ''}` : 'Sur demande'
 
 export function toCard(v: Vehicle): VehicleCard {
   const cover = toItem(v.couverture)
@@ -56,7 +67,9 @@ export function toCard(v: Vehicle): VehicleCard {
     couleur: v.couleur || '',
     categorie: v.categorie,
     categorieLabel: CAT[v.categorie] || v.categorie,
-    prixLabel: prixLabel(v.prix),
+    prixLabel: prixLabel(v.prix, v.prixTTC),
+    dispo: (v.disponibilite || 'stock') as VehicleCard['dispo'],
+    arrivee: v.arrivee,
     description: v.description || '',
     annee: v.annee,
     caracteristiques: (v.caracteristiques || []).map((c) => ({ libelle: c.libelle, valeur: c.valeur })),
@@ -122,3 +135,5 @@ export async function getSite(): Promise<SiteData> {
 }
 
 export const waLink = (num: string, text: string) => `https://wa.me/${num}?text=${encodeURIComponent(text)}`
+
+export { carLabel, carWaText } from './format'

@@ -13,7 +13,7 @@ export const Vehicles: CollectionConfig = {
   labels: { singular: 'Véhicule', plural: 'Véhicules' },
   admin: {
     useAsTitle: 'titre',
-    defaultColumns: ['titre', 'categorie', 'couleur', 'prix', 'enLigne'],
+    defaultColumns: ['titre', 'prix', 'disponibilite', 'enLigne'],
     group: 'Catalogue',
     description: 'Ajoutez, modifiez et mettez en ligne les véhicules de la collection.',
   },
@@ -68,6 +68,7 @@ export const Vehicles: CollectionConfig = {
       type: 'row',
       fields: [
         { name: 'prix', type: 'number', label: 'Prix (FCFA)', admin: { description: 'Laisser vide pour afficher « Sur demande ».' } },
+        { name: 'prixTTC', type: 'checkbox', label: 'Prix TTC', defaultValue: true },
         { name: 'enLigne', type: 'checkbox', label: 'En ligne', defaultValue: true },
         { name: 'ordre', type: 'number', label: 'Ordre d’affichage', defaultValue: 100 },
       ],
@@ -96,6 +97,32 @@ export const Vehicles: CollectionConfig = {
       hasMany: true,
       label: 'Galerie (photos et vidéos)',
       admin: { description: 'Glissez-déposez plusieurs fichiers ; l’ordre est celui de la galerie.' },
+    },
+    {
+      name: 'disponibilite',
+      type: 'select',
+      label: 'Disponibilité',
+      required: true,
+      defaultValue: 'stock',
+      options: [
+        { label: 'En stock', value: 'stock' },
+        { label: 'Futur arrivage (précommande)', value: 'arrivage' },
+        { label: 'VENDUE', value: 'vendu' },
+      ],
+      admin: {
+        position: 'sidebar',
+        description: '« VENDUE » garde le véhicule visible avec un bandeau Vendue. « Futur arrivage » le place dans l’onglet Arrivages.',
+      },
+    },
+    {
+      name: 'arrivee',
+      type: 'text',
+      label: 'Arrivée prévue',
+      admin: {
+        position: 'sidebar',
+        description: 'Ex. : « Décembre 2026 » ou « Sous 6 semaines ».',
+        condition: (data) => data?.disponibilite === 'arrivage',
+      },
     },
     {
       name: 'slug',

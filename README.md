@@ -6,7 +6,10 @@ Site cinématographique (Next.js) avec galerie par véhicule, formulaire de dema
 ## Ce que fait le tableau de bord
 - **Véhicules** : marque, modèle, catégorie, couleur, prix (vide = « Sur demande »), description, caractéristiques,
   photo de couverture et galerie photos/vidéos. La case **En ligne** publie ou retire le véhicule du site.
-- **Demandes d’achat** : chaque formulaire envoyé sur le site arrive ici avec un statut
+  Le champ **Disponibilité** (colonne de droite) : *En stock*, *Futur arrivage* (le véhicule passe dans
+  l’onglet Arrivages avec un bouton Précommander, et une date d’arrivée prévue) ou *VENDUE* (bandeau rouge,
+  plus de bouton d’achat). La case **Prix TTC** ajoute « TTC » après le prix.
+- **Demandes d’achat** : chaque formulaire envoyé sur le site arrive ici avec son type (achat ou précommande) et un statut
   (nouveau, contacté, essai prévu, vendu, sans suite), en plus du message WhatsApp du client.
 - **Textes & réglages du site** : accroche, vidéo d’accueil, numéro WhatsApp, liens Facebook et TikTok, atouts.
 
