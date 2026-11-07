@@ -54,7 +54,7 @@ export function Collection({
         {shown.map((v) => (
           <article className={`card ${v.dispo}`} key={v.id} onClick={() => setOpen(v)}>
             <div className="pic">
-              <div className="bg" style={{ background: `url(${v.cover}) center/cover` }} />
+              <div className="bg" role="img" aria-label={`${v.marque} ${v.modele} ${v.couleur} neuf`.trim()} style={{ background: `url(${v.cover}) center/cover` }} />
               <span className="tag">
                 {v.dispo === 'arrivage' ? `Arrivage${v.arrivee ? ` · ${v.arrivee}` : ''}` : `${v.categorieLabel} · Neuf`}
               </span>
@@ -63,7 +63,19 @@ export function Collection({
             <div className="info">
               <div>
                 <small>{v.marque.toUpperCase()}</small>
-                <h3>{v.modele}</h3>
+                <h3>
+                  {/* Vrai lien vers la fiche (lu par Google) ; un clic simple ouvre la galerie comme avant. */}
+                  <a
+                    href={`/vehicules/${v.slug}`}
+                    style={{ color: 'inherit', textDecoration: 'none' }}
+                    onClick={(e) => {
+                      if (!(e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1)) e.preventDefault()
+                      else e.stopPropagation()
+                    }}
+                  >
+                    {v.modele}
+                  </a>
+                </h3>
               </div>
               <div className="price">
                 {v.dispo === 'vendu' ? 'Vendue' : v.prixLabel}

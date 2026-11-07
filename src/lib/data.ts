@@ -12,6 +12,8 @@ export type VehicleCard = {
   categorie: string
   categorieLabel: string
   prixLabel: string
+  prix?: number | null
+  updatedAt?: string
   dispo: 'stock' | 'arrivage' | 'vendu'
   arrivee?: string | null
   description: string
@@ -68,6 +70,8 @@ export function toCard(v: Vehicle): VehicleCard {
     categorie: v.categorie,
     categorieLabel: CAT[v.categorie] || v.categorie,
     prixLabel: prixLabel(v.prix, v.prixTTC),
+    prix: v.prix,
+    updatedAt: v.updatedAt,
     dispo: (v.disponibilite || 'stock') as VehicleCard['dispo'],
     arrivee: v.arrivee,
     description: v.description || '',
