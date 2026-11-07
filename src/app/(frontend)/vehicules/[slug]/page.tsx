@@ -4,17 +4,29 @@ import { notFound } from 'next/navigation'
 import { VehicleGallery } from '@/components/VehicleGallery'
 import { WaIcon } from '@/components/WaIcon'
 import { carLabel, carWaText, getSite, getVehicle } from '@/lib/data'
+import { breadcrumbJsonLd, carJsonLd, ldScript } from '@/lib/seo'
 
 type Props = { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const car = await getVehicle((await params).slug)
-  if (!car) return {}
-  const title = `${car.marque} ${car.modele}${car.couleur ? ` ${car.couleur}` : ''} neuf`
+  if (!car) return { robots: { index: false } }
+  const name = `${car.marque} ${car.modele}${car.couleur ? ` ${car.couleur}` : ''}`
+  const etat = car.dispo === 'arrivage' ? 'neuf en précommande' : car.dispo === 'vendu' ? 'neuf (vendu)' : 'neuf'
+  const title = `${name} ${etat} à Abidjan${car.dispo !== 'vendu' && car.prix ? ` · ${car.prixLabel}` : ''}`
+  const lead =
+    car.dispo === 'vendu'
+      ? `${name} neuf vendu par DAROUL CAR à Abidjan. Découvrez nos autres véhicules neufs disponibles.`
+      : `${name} neuf (${car.categorieLabel}${car.annee ? `, ${car.annee}` : ''}) ${car.dispo === 'arrivage' ? 'en précommande' : 'disponible'} chez DAROUL CAR à Abidjan. Prix : ${car.prixLabel}. Commande sur WhatsApp.`
+  const description = (car.description ? `${lead} ${car.description}` : lead).slice(0, 300)
+  const path = `/vehicules/${car.slug}`
+  const image = car.media.find((m) => m.type === 'image')?.url || car.cover
   return {
     title,
-    description: car.description || `${title} disponible chez DAROUL CAR. Prix : ${car.prixLabel}.`,
-    openGraph: { title, images: car.cover ? [car.cover] : undefined },
+    description,
+    alternates: { canonical: path },
+    openGraph: { type: 'website', url: path, title: `${name} · DAROUL CAR`, description, images: image ? [{ url: image, alt: name }] : undefined },
+    twitter: { card: 'summary_large_image', images: image ? [image] : undefined },
   }
 }
 
@@ -25,6 +37,17 @@ export default async function VehiclePage({ params }: Props) {
   const wa = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(carWaText(car))}`
   return (
     <main className="vpage">
+      <script type="application/ld+json" dangerouslySetInnerHTML={ldScript(carJsonLd(car))} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={ldScript(
+          breadcrumbJsonLd([
+            { name: 'Accueil', path: '/' },
+            { name: car.dispo === 'arrivage' ? 'Arrivages' : 'Collection', path: car.dispo === 'arrivage' ? '/#arrivages' : '/#collection' },
+            { name: `${car.marque} ${car.modele}`, path: `/vehicules/${car.slug}` },
+          ]),
+        )}
+      />
       <Link href={car.dispo === 'arrivage' ? '/#arrivages' : '/#collection'} className="back">
         ← {car.dispo === 'arrivage' ? 'Tous les arrivages' : 'Toute la collection'}
       </Link>
