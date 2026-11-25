@@ -29,9 +29,10 @@ const VEHICULES: V[] = [
 
 const payload = await getPayload({ config })
 
-const { totalDocs } = await payload.count({ collection: 'vehicles' })
-if (totalDocs > 0) {
-  payload.logger.info(`Déjà ${totalDocs} véhicule(s) : rien à faire.`)
+// Reprise possible : si un import précédent s'est arrêté en route, on complète ce qui manque.
+const site = await payload.findGlobal({ slug: 'site', depth: 0 }).catch(() => null)
+if (site?.videoAccueil) {
+  payload.logger.info('Données de départ déjà importées : rien à faire.')
   process.exit(0)
 }
 
@@ -56,12 +57,17 @@ async function upload(file: string, alt: string): Promise<number> {
 let ordre = 10
 for (const v of VEHICULES) {
   const alt = `${v.marque} ${v.modele} ${v.couleur}`
-  const ids: number[] = []
-  for (const f of v.files) ids.push(await upload(f, alt))
   const slug = `${v.marque} ${v.modele} ${v.couleur}`
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
+  const exists = await payload.count({ collection: 'vehicles', where: { slug: { equals: slug } } })
+  if (exists.totalDocs > 0) {
+    ordre += 10
+    continue
+  }
+  const ids: number[] = []
+  for (const f of v.files) ids.push(await upload(f, alt))
   const f = FICHES[slug]
   await payload.create({
     collection: 'vehicles',
