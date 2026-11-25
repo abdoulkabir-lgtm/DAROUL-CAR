@@ -23,7 +23,15 @@ npm run seed                # compte admin + 11 véhicules + médias (dossier se
 npm run dev                 # http://localhost:3000 et http://localhost:3000/admin
 ```
 
-## Déploiement sur Railway (à valider avant création)
+## Déploiement sur Vercel
+1. Importer le dépôt GitHub dans Vercel (framework Next.js détecté ; `vercel.json` fixe l'installation et le build).
+2. Onglet **Storage** : connecter une base **Neon** (fournit `DATABASE_URL`) et un **Blob** (fournit `BLOB_READ_WRITE_TOKEN`).
+3. Variables : `PAYLOAD_SECRET` (longue chaîne aléatoire), `ADMIN_PASSWORD` (et `ADMIN_EMAIL`, par défaut admin@daroulcar.ci),
+   puis `NEXT_PUBLIC_SITE_URL=https://daroulcar.com` une fois le domaine branché.
+4. Chaque build exécute `npm run vercel-build` : vérification de la configuration, migrations, import des données de départ
+   (seulement ce qui manque), puis `next build`.
+
+## Ancien déploiement Railway (essai expiré le 21/11/2026)
 1. Nouveau projet Railway relié au dépôt GitHub.
 2. Ajouter un service **PostgreSQL** ; la variable `DATABASE_URL` est fournie automatiquement.
 3. Sur le service web, ajouter un **volume** monté sur `/data/media` et définir les variables :
