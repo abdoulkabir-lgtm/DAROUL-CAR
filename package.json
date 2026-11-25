@@ -13,7 +13,8 @@
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed.ts",
     "start:prod": "npm run seed && npm start",
-    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create"
+    "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "vercel-build": "cross-env NODE_ENV=production npm run payload migrate && cross-env NODE_ENV=production npm run seed && npm run build"
   },
   "engines": {
     "node": ">=20.9.0"
@@ -22,10 +23,11 @@
     "@payloadcms/db-postgres": "3.92.1",
     "@payloadcms/next": "3.92.1",
     "@payloadcms/richtext-lexical": "3.92.1",
+    "@payloadcms/storage-vercel-blob": "3.92.1",
     "@payloadcms/translations": "3.92.1",
     "cross-env": "^10.1.0",
     "graphql": "^16.14.2",
-    "next": "^16.4.4",
+    "next": "^16.4.6",
     "payload": "3.92.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

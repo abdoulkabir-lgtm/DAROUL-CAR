@@ -33,8 +33,10 @@ export const payloadClient = () => getPayload({ config })
 
 const asMedia = (m: unknown): Media | null => (m && typeof m === 'object' ? (m as Media) : null)
 
-// Adresses relatives : les médias s'affichent quel que soit le domaine (Railway ou daroulcar.com).
-const rel = <T extends string | null | undefined>(u: T): T => (u ? (u.replace(/^https?:\/\/[^/]+/, '') as T) : u)
+// Adresses relatives pour les médias servis par le site lui-même (/api/media/...), afin qu'ils
+// s'affichent quel que soit le domaine. Les adresses Vercel Blob (autre domaine) restent absolues.
+const rel = <T extends string | null | undefined>(u: T): T =>
+  u && /^https?:\/\/[^/]+\/api\//.test(u) ? (u.replace(/^https?:\/\/[^/]+/, '') as T) : u
 
 export function toItem(m: unknown): MediaItem | null {
   const r = toItemAbs(m)
