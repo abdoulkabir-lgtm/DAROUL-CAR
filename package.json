@@ -14,7 +14,7 @@
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed.ts",
     "start:prod": "npm run seed && npm start",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
-    "vercel-build": "node scripts/verif-vercel.mjs && cross-env NODE_ENV=production npm run payload migrate && cross-env NODE_ENV=production npm run seed && npm run build"
+    "vercel-build": "node scripts/vercel-build.mjs"
   },
   "engines": {
     "node": ">=20.9.0"
