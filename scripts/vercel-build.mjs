@@ -4,6 +4,7 @@
 // Le compte rendu des étapes base de données est publié dans /journal-build.txt (adresses masquées)
 // afin de pouvoir diagnostiquer un échec sans accès au tableau de bord Vercel.
 import { spawnSync } from 'node:child_process'
+const buildNext = () => spawnSync('npm run build:next', { shell: true, stdio: 'inherit' }).status === 0
 import { writeFileSync } from 'node:fs'
 
 let journal = `Build ${new Date().toISOString()} · ${process.env.VERCEL_ENV || 'local'} · ${process.env.VERCEL_GIT_COMMIT_SHA || ''}\n`
@@ -19,12 +20,17 @@ const run = (cmd, env = {}) => {
 }
 const save = () => writeFileSync('public/journal-build.txt', journal)
 
+// Hors Vercel (build local, Docker…), on construit simplement le site.
+if (!process.env.VERCEL) {
+  process.exit(buildNext() ? 0 : 1)
+}
+
 if (!run('node scripts/verif-vercel.mjs')) {
   save()
   process.exit(1)
 }
 
-const production = !process.env.VERCEL_ENV || process.env.VERCEL_ENV === 'production'
+const production = process.env.VERCEL_ENV === 'production'
 if (production) {
   const ok = run('npm run payload migrate', { NODE_ENV: 'production' }) &&
     (run('npm run seed', { NODE_ENV: 'production' }) || run('npm run seed', { NODE_ENV: 'production' }))
@@ -34,5 +40,4 @@ if (production) {
 }
 save()
 
-const built = run('npm run build')
-process.exit(built ? 0 : 1)
+process.exit(buildNext() ? 0 : 1)

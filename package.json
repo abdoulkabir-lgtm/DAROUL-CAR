@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
-    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "build": "node scripts/vercel-build.mjs",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
@@ -14,10 +14,10 @@
     "seed": "cross-env NODE_OPTIONS=--no-deprecation payload run src/seed.ts",
     "start:prod": "npm run seed && npm start",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
-    "vercel-build": "node scripts/vercel-build.mjs"
+    "build:next": "cross-env NODE_OPTIONS=--no-deprecation next build"
   },
   "engines": {
-    "node": ">=20.9.0"
+    "node": "22.x"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.92.1",
