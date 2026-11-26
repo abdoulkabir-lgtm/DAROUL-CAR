@@ -4,3 +4,4 @@ node_modules
 media
 *.log
 next-env.d.ts
+public/journal-build.txt
