@@ -5,6 +5,7 @@
  * Le script ne fait rien si des véhicules existent déjà.
  */
 import path from 'path'
+import pg from 'pg'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { FICHES } from './data/fiches'
@@ -29,11 +30,23 @@ const VEHICULES: V[] = [
 
 const payload = await getPayload({ config })
 
+// Un seul import à la fois (production et aperçus partagent la même base).
+const lock = new pg.Client({
+  connectionString: process.env.DATABASE_URI || process.env.DATABASE_URL || process.env.POSTGRES_URL,
+})
+await lock.connect()
+await lock.query('SELECT pg_advisory_lock(424242)')
+const done = async (code: number) => {
+  await lock.query('SELECT pg_advisory_unlock(424242)').catch(() => {})
+  await lock.end().catch(() => {})
+  process.exit(code)
+}
+
 // Reprise possible : si un import précédent s'est arrêté en route, on complète ce qui manque.
 const site = await payload.findGlobal({ slug: 'site', depth: 0 }).catch(() => null)
 if (site?.videoAccueil) {
   payload.logger.info('Données de départ déjà importées : rien à faire.')
-  process.exit(0)
+  await done(0)
 }
 
 // Compte admin créé seulement si ADMIN_PASSWORD est défini. Sinon, /admin propose de créer
@@ -99,4 +112,4 @@ const hero = await payload.create({ collection: 'media', data: { alt: 'DAROUL CA
 await payload.updateGlobal({ slug: 'site', data: { videoAccueil: hero.id } })
 
 payload.logger.info('Données de départ importées.')
-process.exit(0)
+await done(0)

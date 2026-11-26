@@ -30,13 +30,12 @@ if (!run('node scripts/verif-vercel.mjs')) {
   process.exit(1)
 }
 
-const production = process.env.VERCEL_ENV === 'production'
-if (production) {
+// Production et aperçus : la base est mise à jour et complétée (l'import est verrouillé,
+// un seul à la fois), car Vercel peut réutiliser le build d'un aperçu pour la production.
+{
   const ok = run('npm run payload migrate', { NODE_ENV: 'production' }) &&
     (run('npm run seed', { NODE_ENV: 'production' }) || run('npm run seed', { NODE_ENV: 'production' }))
   if (!ok) console.log('\n⚠ Étape base de données en échec : voir /journal-build.txt une fois en ligne.')
-} else {
-  journal += `\nAperçu : base et données de départ laissées telles quelles.\n`
 }
 save()
 
