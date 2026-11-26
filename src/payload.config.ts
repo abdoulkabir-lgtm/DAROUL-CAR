@@ -6,6 +6,7 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { fr } from '@payloadcms/translations/languages/fr'
 import sharp from 'sharp'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { createHash } from 'crypto'
 import { migrations } from './migrations'
 
 import { Users } from './collections/Users'
@@ -33,7 +34,12 @@ export default buildConfig({
   collections: [Vehicles, Leads, Media, Users],
   globals: [Site],
   editor: lexicalEditor(),
-  secret: process.env.PAYLOAD_SECRET || '',
+  // Sans PAYLOAD_SECRET, on dérive un secret stable de l'adresse (secrète) de la base de données.
+  secret:
+    process.env.PAYLOAD_SECRET ||
+    createHash('sha256')
+      .update(process.env.DATABASE_URI || process.env.DATABASE_URL || process.env.POSTGRES_URL || '')
+      .digest('hex'),
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   db: postgresAdapter({
     pool: {
