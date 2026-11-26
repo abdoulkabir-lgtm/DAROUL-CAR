@@ -6,6 +6,8 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { fr } from '@payloadcms/translations/languages/fr'
 import sharp from 'sharp'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { cloudStoragePlugin } from '@payloadcms/plugin-cloud-storage'
+import { dbStorageAdapter } from './lib/dbStorage'
 import { createHash } from 'crypto'
 import { migrations } from './migrations'
 
@@ -14,6 +16,9 @@ import { Media } from './collections/Media'
 import { Vehicles } from './collections/Vehicles'
 import { Leads } from './collections/Leads'
 import { Site } from './globals/Site'
+
+const MEDIA_STORAGE =
+  process.env.MEDIA_STORAGE || (process.env.VERCEL ? 'db' : 'local')
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -51,10 +56,16 @@ export default buildConfig({
   }),
   sharp,
   plugins: [
-    // Sur Vercel : photos et vidéos stockées dans Vercel Blob (le disque des fonctions est éphémère).
-    // Sans jeton (en local), les fichiers restent dans le dossier MEDIA_DIR.
+    // Où sont rangés les photos et vidéos :
+    //  - 'db'    : dans la base Neon (par défaut sur Vercel, aucun réglage nécessaire) ;
+    //  - 'blob'  : dans Vercel Blob (MEDIA_STORAGE=blob + BLOB_READ_WRITE_TOKEN) ;
+    //  - 'local' : sur le disque, dossier MEDIA_DIR (par défaut hors Vercel).
+    cloudStoragePlugin({
+      enabled: MEDIA_STORAGE === 'db',
+      collections: { media: { adapter: dbStorageAdapter } },
+    }),
     vercelBlobStorage({
-      enabled: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
+      enabled: MEDIA_STORAGE === 'blob',
       // adresses directes du Blob (plus rapides que de passer par le serveur)
       collections: { media: { disablePayloadAccessControl: true } },
       token: process.env.BLOB_READ_WRITE_TOKEN || '',

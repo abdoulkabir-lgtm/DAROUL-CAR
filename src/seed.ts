@@ -36,12 +36,16 @@ if (site?.videoAccueil) {
   process.exit(0)
 }
 
+// Compte admin créé seulement si ADMIN_PASSWORD est défini. Sinon, /admin propose de créer
+// le premier compte (pas de mot de passe par défaut connu de tous).
 const email = process.env.ADMIN_EMAIL || 'admin@daroulcar.ci'
-const password = process.env.ADMIN_PASSWORD || 'changez-moi-daroul'
-const users = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1 })
-if (!users.docs.length) {
-  await payload.create({ collection: 'users', data: { email, password, nom: 'Administrateur' } })
-  payload.logger.info(`Compte admin créé : ${email}`)
+const password = process.env.ADMIN_PASSWORD
+if (password) {
+  const users = await payload.find({ collection: 'users', where: { email: { equals: email } }, limit: 1 })
+  if (!users.docs.length) {
+    await payload.create({ collection: 'users', data: { email, password, nom: 'Administrateur' } })
+    payload.logger.info(`Compte admin créé : ${email}`)
+  }
 }
 
 async function upload(file: string, alt: string): Promise<number> {

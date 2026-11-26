@@ -2,10 +2,10 @@
 const manque = []
 if (!(process.env.DATABASE_URI || process.env.DATABASE_URL || process.env.POSTGRES_URL))
   manque.push('Base de données Neon non connectée : projet Vercel > onglet Storage > Neon > Connect')
-if (!process.env.BLOB_READ_WRITE_TOKEN)
+if (process.env.MEDIA_STORAGE === 'blob' && !process.env.BLOB_READ_WRITE_TOKEN)
   manque.push('Stockage photos Blob non connecté : projet Vercel > onglet Storage > Blob > Connect')
 if (manque.length) {
   console.error('\n❌ DAROUL CAR — configuration incomplète :\n' + manque.map((m) => '   • ' + m).join('\n') + '\n')
   process.exit(1)
 }
-console.log('✓ Base de données et stockage photos présents.')
+console.log('✓ Base de données présente. Stockage des photos : ' + (process.env.MEDIA_STORAGE || 'base de données'))
